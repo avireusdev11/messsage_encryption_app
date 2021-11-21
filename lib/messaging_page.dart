@@ -6,6 +6,7 @@ import 'package:enc/user/message.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screen_lock/flutter_screen_lock.dart';
 import 'package:uuid/uuid.dart';
 import 'user/user.dart';
 
@@ -151,7 +152,16 @@ class _Messaging_pageState extends State<Messaging_page> {
                 appBar:AppBar(title: Text(widget.selectedUser.name),centerTitle: true,actions: [
                   Switch(value: switch_val, onChanged: (val){
                     setState(() {
+                      if(val==true)
+                        {
+                          screenLock(
+                            context: context,
+                            correctString: '1234',
+                          );
+
+                        }
                       switch_val=val;
+
                     });
                   })
                 ],),

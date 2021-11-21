@@ -23,40 +23,57 @@ class _LoginState extends State<Login> {
     print(email+"  "+password);
     try{
       await _firebaseAuth.signInWithEmailAndPassword(email: email, password: password);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('email', email);
+      prefs.setString('password', password);
+      String uid=_firebaseAuth.currentUser!.uid;
+      print("uid isn "+uid);
+      if(uid!=null)
+      {
+        Usersclass currentUser=new Usersclass();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Messages(userid: uid,),
+            //builder: (context) => messages(userid: uid),
+          ),
+        );
+        //Navigator.pushNamed(context, '/match');
+      }
     } on FirebaseAuthException catch (e){
       if (e.code == 'user-not-found') {
         print('No user found for that email.');
+        dialog('No user found');
+        setState(() {
+          show_spinner=false;
+        });
       } else if (e.code == 'wrong-password') {
         print('Wrong password provided for that user.');
+        dialog('Wrong Password');
+        setState(() {
+          show_spinner=false;
+        });
       }
     }
 
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('email', email);
-    prefs.setString('password', password);
-    String uid=_firebaseAuth.currentUser!.uid;
-    print("uid isn "+uid);
-    if(uid!=null)
-    {
-      Usersclass currentUser=new Usersclass();
-      /*await _firestore.collection('users').doc(uid).get().then((user) {
-        currentUser.name = user['name'];
-        currentUser.photo = user['photourl'];
-        currentUser.uid=uid;
-        currentUser.phoneNumber=user['phoneNumber'];
-      });*/
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Messages(userid: uid,),
-          //builder: (context) => messages(userid: uid),
-        ),
-      );
-      //Navigator.pushNamed(context, '/match');
-    }
+
     //Position position=await _determinePosition();
     //print(position.latitude);
   }
+
+  Future<void> dialog(var a) async{
+    return showDialog<void>(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text("Error"),
+            content: Text(a),
+            elevation: 24.0,
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size=MediaQuery.of(context).size;
